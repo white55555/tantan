@@ -4,5 +4,5 @@ from user import urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('app/',include(urls))
+    path('app/',include(urls)),
 ]

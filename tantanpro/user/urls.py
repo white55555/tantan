@@ -4,6 +4,7 @@ app_name='user'
 
 
 urlpatterns=[
-    path('login/',login,name='login')
-
+    path('login/',login,name='login'),
+    path('verify_phone/',verify_phone,name='verify_phone'),
+    
 ]
