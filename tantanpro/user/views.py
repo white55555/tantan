@@ -1,9 +1,13 @@
+import os
+import time
+
+from django.conf import settings
 from django.core.cache import cache
-from django.http import HttpResponse, JsonResponse
 from common.utils import is_phone_num
 from common import errors, cache_keys
 from libs.http import render_json
 from user import logics
+from user.form import ProfileForm
 from user.models import User
 
 
@@ -19,7 +23,7 @@ def login(request):
 
     request.session['uid'] = user.id
 
-    return render_json(data=User.to_dict(phone_num))
+    return render_json(data=user.to_dict())
 
 
 
@@ -40,3 +44,33 @@ def verify_phone(request):
         return render_json(code=errors.PHONE_NUM_ERROR)
 
 
+def get_profile(request):
+    user = request.user
+
+    return render_json(data=user.profile.to_dict(exclude=['auto_play']))
+
+
+def set_profile(request):
+    user = request.user
+    form = ProfileForm(data=request.POST,instance=user.profile)
+
+    if form.is_valid():
+        form.save()
+        return render_json()
+    else:
+        return render_json(data=form.errors)
+
+
+def get_avatar(request):
+    user = request.user
+    avatar = request.FILES.get('avatar')
+    file_name='avatat-{}'.format(int(time.time()))
+    #file_path = os.path.join(settings.MADIA_URL,'madia')
+    # with open(file_path,'wb+') as e:
+    #     for chunk in avatar.chunks:
+    #         e.writer(chunk)
+    # return render_json()
+    file_path = logics.upload_avatar(file_name,avatar)
+
+    ret = logics.upload_qiniuyun(file_name,file_path)
+    return ret
